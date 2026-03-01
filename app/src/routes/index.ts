@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useNProgress } from '@/lib/nprogress/nprogress'
 import { useUserStore } from '@/pinia'
+import { apisixRoutes } from './modules/apisix/apisix'
 import { authRoutes } from './modules/auth'
 
 import { backupRoutes } from './modules/backup'
@@ -26,6 +27,7 @@ import 'nprogress/nprogress.css'
 // Combine child routes for the main layout
 const mainLayoutChildren: RouteRecordRaw[] = [
   ...dashboardRoutes,
+  ...apisixRoutes,
   ...sitesRoutes,
   ...streamsRoutes,
   ...upstreamRoutes,

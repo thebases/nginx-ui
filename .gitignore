@@ -26,3 +26,5 @@ log-index/
 *.prof
 *.test
 GeoLite2-City.mmdb
+*.log
+temp

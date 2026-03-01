@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/0xJacky/Nginx-UI/api/analytic"
+	"github.com/0xJacky/Nginx-UI/api/apisix"
 	"github.com/0xJacky/Nginx-UI/api/audit"
 	"github.com/0xJacky/Nginx-UI/api/backup"
 	"github.com/0xJacky/Nginx-UI/api/certificate"
@@ -98,6 +99,7 @@ func InitRouter() {
 			notification.InitRouter(g)
 			external_notify.InitRouter(g)
 			backup.InitAutoBackupRouter(g)
+			apisix.InitRouter(g)
 			nginxLog.InitRouter(g)
 			g.GET("/geolite/status", geolite.GetStatus)
 		}

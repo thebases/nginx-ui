@@ -41,6 +41,7 @@ var envPrefixMap = map[string]interface{}{
 	"WEBAUTHN":  WebAuthnSettings,
 	"BACKUP":    BackupSettings,
 	"OIDC":      OIDCSettings,
+	"APISIX":    APISIXSettings,
 }
 
 func init() {
@@ -63,6 +64,7 @@ func init() {
 	sections.Set("openai", OpenAISettings)
 	sections.Set("terminal", TerminalSettings)
 	sections.Set("webauthn", WebAuthnSettings)
+	sections.Set("apisix", APISIXSettings)
 
 	for k, v := range sections.AllFromFront() {
 		settings.Register(k, v)

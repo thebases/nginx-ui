@@ -1,7 +1,15 @@
 @ECHO OFF
 REM Get the current folder name
 SET CURR_DIR=nginx_ui
-SET CGO_ENABLED=0
+SET CGO_ENABLED=1
+SET "MSYS2_MINGW64_BIN=C:\tools\msys64\mingw64\bin"
+
+REM Keep MinGW runtime DLLs ahead of conflicting PATH entries for cgo/cc1.
+IF EXIST "%MSYS2_MINGW64_BIN%\gcc.exe" (
+    SET "PATH=%MSYS2_MINGW64_BIN%;C:\Windows\System32;C:\Windows;%PATH%"
+    SET "CC=%MSYS2_MINGW64_BIN%\gcc.exe"
+    SET "CXX=%MSYS2_MINGW64_BIN%\g++.exe"
+)
 
 
 REM Check if an argument is provided

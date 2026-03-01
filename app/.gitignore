@@ -25,3 +25,5 @@ cache
 
 # language
 src/language/**/*.mo
+
+api/apisix/src/**/*

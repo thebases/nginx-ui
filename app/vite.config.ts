@@ -90,7 +90,7 @@ export default defineConfig(({ mode }) => {
       port: Number.parseInt(env.VITE_PORT) || 3002,
       proxy: {
         '/api': {
-          target: env.VITE_PROXY_TARGET || 'http://localhost:9001',
+          target: env.VITE_PROXY_TARGET || 'http://localhost:9000',
           changeOrigin: true,
           secure: false,
         },

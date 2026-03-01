@@ -91,6 +91,10 @@ func TestSetup(t *testing.T) {
 	_ = os.Setenv("NGINX_UI_OPENAI_PROXY", "https://proxy.openai.com")
 	_ = os.Setenv("NGINX_UI_OPENAI_TOKEN", "token123")
 
+	// APISIX
+	_ = os.Setenv("NGINX_UI_APISIX_BASE_URL", "https://gw42.thebase.vn/admin")
+	_ = os.Setenv("NGINX_UI_APISIX_API_KEY", "apisix-key")
+
 	// Terminal
 	_ = os.Setenv("NGINX_UI_TERMINAL_START_CMD", "bash")
 
@@ -182,6 +186,10 @@ func TestSetup(t *testing.T) {
 	assert.Equal(t, "https://api.openai.com", OpenAISettings.BaseUrl)
 	assert.Equal(t, "https://proxy.openai.com", OpenAISettings.Proxy)
 	assert.Equal(t, "token123", OpenAISettings.Token)
+
+	// APISIX
+	assert.Equal(t, "https://gw42.thebase.vn/admin", APISIXSettings.BaseURL)
+	assert.Equal(t, "apisix-key", APISIXSettings.APIKey)
 
 	// Terminal
 	assert.Equal(t, "bash", TerminalSettings.StartCmd)
