@@ -15,7 +15,7 @@ interface APISIXListItem {
 
 interface APISIXListResponse {
   total?: number
-  list?: APISIXListItem[]
+  list?: APISIXListItem[] | Record<string, APISIXListItem>
 }
 
 interface ResourceConfig {
@@ -27,8 +27,6 @@ interface ResourceConfig {
   postPath?: string
   createTemplate: Record<string, unknown>
 }
-
-const storageKey = 'apisix-console-config'
 
 const resources: ResourceConfig[] = [
   {
@@ -150,8 +148,6 @@ const columns: TableColumnsType = [
 ]
 
 const activeResource = ref(resources[0].key)
-const baseURL = ref('')
-const apiKey = ref('')
 const loading = ref(false)
 const total = ref(0)
 const page = ref(1)
@@ -166,10 +162,7 @@ const currentResource = computed(() => {
 })
 
 const proxyConfig = computed<APISIXProxyConfig>(() => {
-  return {
-    base_url: baseURL.value || undefined,
-    api_key: apiKey.value || undefined,
-  }
+  return {}
 })
 
 const dataSource = computed(() => {
@@ -183,13 +176,6 @@ const dataSource = computed(() => {
       summary,
     }
   })
-})
-
-watch([baseURL, apiKey], () => {
-  localStorage.setItem(storageKey, JSON.stringify({
-    base_url: baseURL.value,
-    api_key: apiKey.value,
-  }))
 })
 
 watch(activeResource, async () => {
@@ -230,6 +216,23 @@ function summarize(value: Record<string, unknown>) {
   return JSON.stringify(value).slice(0, 120)
 }
 
+function normalizeListItems(
+  list: APISIXListResponse['list'],
+): APISIXListItem[] {
+  if (!list) {
+    return []
+  }
+  if (Array.isArray(list)) {
+    return list
+  }
+  if (typeof list === 'object') {
+    return Object.values(list).filter((item): item is APISIXListItem => {
+      return Boolean(item && typeof item === 'object')
+    })
+  }
+  return []
+}
+
 async function loadList() {
   loading.value = true
   try {
@@ -239,7 +242,7 @@ async function loadList() {
         page_size: pageSize.value,
       },
     })
-    rows.value = data.list ?? []
+    rows.value = normalizeListItems(data.list)
     total.value = data.total ?? rows.value.length
   }
   catch (error) {
@@ -340,18 +343,6 @@ function changePage(nextPage: number, nextPageSize: number) {
 }
 
 onMounted(async () => {
-  const saved = localStorage.getItem(storageKey)
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved) as APISIXProxyConfig
-      baseURL.value = parsed.base_url ?? ''
-      apiKey.value = parsed.api_key ?? ''
-    }
-    catch {
-      localStorage.removeItem(storageKey)
-    }
-  }
-
   await loadList()
 })
 </script>
@@ -360,16 +351,6 @@ onMounted(async () => {
   <div class="apisix-console">
     <ACard :title="$gettext('APISIX Console')">
       <ASpace class="mb-4" wrap>
-        <AInput
-          v-model:value="baseURL"
-          style="width: 280px"
-          :placeholder="$gettext('APISIX Admin API Base URL (optional)')"
-        />
-        <AInputPassword
-          v-model:value="apiKey"
-          style="width: 240px"
-          :placeholder="$gettext('APISIX Admin API Key (optional)')"
-        />
         <AButton :loading="loading" @click="loadList">
           {{ $gettext('Refresh') }}
         </AButton>

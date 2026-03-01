@@ -87,7 +87,7 @@ func ProxyAdminAPI(c *gin.Context) {
 
 	query := flattenQuery(c.Request.URL.Query())
 	headers := collectForwardHeaders(c.Request.Header)
-	upstreamPath := "/admin/" + resourcePath
+	upstreamPath := "/apisix/admin/" + resourcePath
 
 	var forwardBody any
 	if len(bytes.TrimSpace(requestBody)) > 0 {

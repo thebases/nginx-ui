@@ -9,8 +9,10 @@ import (
 	"strings"
 	"time"
 
+	uiSettings "github.com/0xJacky/Nginx-UI/settings"
 	"github.com/go-resty/resty/v2"
 	"github.com/uozi-tech/cosy/logger"
+	cSettings "github.com/uozi-tech/cosy/settings"
 )
 
 const (
@@ -193,13 +195,18 @@ func normalizePathForBaseURL(baseURL, path string) (string, error) {
 	}
 
 	basePath := strings.TrimRight(parsedBaseURL.EscapedPath(), "/")
-	if basePath == "" {
-		return normalizedPath, nil
+
+	// Map APISIX Admin API canonical path to configured gateway path behind proxy.
+	if normalizedPath == "/apisix/admin" || strings.HasPrefix(normalizedPath, "/apisix/admin/") {
+		replacePath := configuredReplacePath()
+		normalizedPath = replacePath + strings.TrimPrefix(normalizedPath, "/apisix/admin")
+		if normalizedPath == "" {
+			normalizedPath = "/"
+		}
 	}
 
-	// Always map APISIX Admin API canonical path to gateway path behind proxy.
-	if normalizedPath == "/apisix/admin" || strings.HasPrefix(normalizedPath, "/apisix/admin/") {
-		normalizedPath = strings.TrimPrefix(normalizedPath, "/apisix")
+	if basePath == "" {
+		return normalizedPath, nil
 	}
 
 	// Avoid duplicating the base path when callers pass a full APISIX path.
@@ -217,6 +224,52 @@ func normalizePathForBaseURL(baseURL, path string) (string, error) {
 	}
 
 	return relativePath, nil
+}
+
+func configuredReplacePath() string {
+	candidates := []string{
+		uiSettings.APISIXSettings.ReplacePath,
+		iniSectionValue("apisix", "ReplacePath", "replace_path", "Replace_Path"),
+	}
+
+	for _, candidate := range candidates {
+		trimmed := strings.TrimSpace(candidate)
+		if trimmed == "" {
+			continue
+		}
+		return normalizeReplacePath(trimmed)
+	}
+
+	return "/admin"
+}
+
+func normalizeReplacePath(path string) string {
+	trimmed := strings.TrimSpace(path)
+	if trimmed == "" {
+		return "/admin"
+	}
+	if !strings.HasPrefix(trimmed, "/") {
+		trimmed = "/" + trimmed
+	}
+	trimmed = strings.TrimRight(trimmed, "/")
+	if trimmed == "" {
+		return "/"
+	}
+	return trimmed
+}
+
+func iniSectionValue(section string, keys ...string) string {
+	if cSettings.Conf == nil {
+		return ""
+	}
+	sec := cSettings.Conf.Section(section)
+	for _, key := range keys {
+		value := strings.TrimSpace(sec.Key(key).String())
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func buildTargetURLForLog(baseURL, normalizedPath string, query map[string]string) string {

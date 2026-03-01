@@ -60,10 +60,27 @@ interface APISIXListItem {
 
 interface APISIXListResponse {
   total: number
-  list: APISIXListItem[]
+  list: APISIXListItem[] | Record<string, APISIXListItem>
 }
 
 type QueryValue = string | number | boolean | undefined
+
+function normalizeListItems(
+  list: APISIXListResponse['list'] | undefined,
+): APISIXListItem[] {
+  if (!list) {
+    return []
+  }
+  if (Array.isArray(list)) {
+    return list
+  }
+  if (typeof list === 'object') {
+    return Object.values(list).filter((item): item is APISIXListItem => {
+      return Boolean(item && typeof item === 'object')
+    })
+  }
+  return []
+}
 
 function normalizeQuery(
   query?: Record<string, QueryValue>,
@@ -138,12 +155,13 @@ async function deleteAllByField(
     const listResp = await apisixRequest<APISIXListResponse>('GET', path, config, {
       query: { page: 1, page_size: pageSizeMax },
     })
+    const list = normalizeListItems(listResp.list)
 
-    if (!Array.isArray(listResp.list) || listResp.list.length === 0) {
+    if (list.length === 0) {
       return
     }
 
-    const ids = listResp.list
+    const ids = list
       .map(item => String(item.value?.[keyField] ?? ''))
       .filter(Boolean)
 

@@ -94,6 +94,7 @@ func TestSetup(t *testing.T) {
 	// APISIX
 	_ = os.Setenv("NGINX_UI_APISIX_BASE_URL", "https://gw42.thebase.vn/admin")
 	_ = os.Setenv("NGINX_UI_APISIX_API_KEY", "apisix-key")
+	_ = os.Setenv("NGINX_UI_APISIX_REPLACE_PATH", "/admin")
 
 	// Terminal
 	_ = os.Setenv("NGINX_UI_TERMINAL_START_CMD", "bash")
@@ -190,6 +191,7 @@ func TestSetup(t *testing.T) {
 	// APISIX
 	assert.Equal(t, "https://gw42.thebase.vn/admin", APISIXSettings.BaseURL)
 	assert.Equal(t, "apisix-key", APISIXSettings.APIKey)
+	assert.Equal(t, "/admin", APISIXSettings.ReplacePath)
 
 	// Terminal
 	assert.Equal(t, "bash", TerminalSettings.StartCmd)
