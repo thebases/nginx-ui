@@ -47,7 +47,7 @@ app.use(pinia)
   .use(createCosyProConfig({
     i18n: {
       legacy: false,
-      locale: 'zh-CN',
+      locale: 'vi-VN',
       fallbackLocale: 'en-US',
       messages: setupTranslations(),
     },

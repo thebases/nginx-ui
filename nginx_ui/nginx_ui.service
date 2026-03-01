@@ -1,0 +1,17 @@
+[Unit]
+Description=The Base Cas Auth Server
+After=network.target
+
+[Service]
+Type=simple
+User=thebase
+Group=thebase
+WorkingDirectory=/opt/nginx_ui
+ExecStart=/opt/nginx_ui/.\nginx_ui\nginx_ui.exe
+StandardOutput=journal+console
+StandardError=journal+console
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=multi-user.target
