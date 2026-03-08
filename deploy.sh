@@ -1,0 +1,1 @@
+scp -r nginx_ui root@217.15.164.105:/opt/

@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CURR_DIR="nginx_ui"
+CURR_DIR="nginx-ui"
 export CGO_ENABLED=1
+export GIN_MODE=release
+
+
+npx update-browserslist-db@latest  && pnpm install && pnpm build 
 
 MSYS2_MINGW64_BIN="/c/tools/msys64/mingw64/bin"
 
@@ -34,10 +38,8 @@ case "$target" in
     exit 1
     ;;
 esac
-
-mkdir -p "${CURR_DIR}/web" "${CURR_DIR}/swagger" "${CURR_DIR}/conf"
-
-go build -ldflags="-w -s -n -v" -o "${OUTPUT}"
+go generate
+go build -tags=jsoniter -ldflags="-w -s -n -v" -o "${OUTPUT}"
 echo "Build succeeded: ${OUTPUT}"
 
 SERVICE_FILE="./${CURR_DIR}/${CURR_DIR}.service"
@@ -50,8 +52,9 @@ After=network.target
 Type=simple
 User=thebase
 Group=thebase
+Environment="GIN_MODE=release"
 WorkingDirectory=/opt/${CURR_DIR}
-ExecStart=/opt/${CURR_DIR}/$(basename "${OUTPUT}")
+ExecStart=/opt/${CURR_DIR}/$(basename "${OUTPUT}") -config /opt/${CURR_DIR}/app.ini
 StandardOutput=journal+console
 StandardError=journal+console
 Restart=on-failure
@@ -63,15 +66,8 @@ EOF
 
 echo "Service file created: ${SERVICE_FILE}"
 
-cp -f ./conf/app_prod.conf "./${CURR_DIR}/conf/app.conf"
-
-if [[ -d ./web/build ]]; then
-  mkdir -p "./${CURR_DIR}/web/build"
-  cp -a ./web/build/. "./${CURR_DIR}/web/build/"
-fi
-
-if [[ -d ./swagger ]]; then
-  cp -a ./swagger/. "./${CURR_DIR}/swagger/"
-fi
+cp ./resources/base/app.example.ini "./${CURR_DIR}/app.ini"
+cp ./resources/base/nginx_ui_sample.conf "./${CURR_DIR}/nginx_ui.conf"
+cp ./resources/base/openapi.json "./${CURR_DIR}/openapi.json"
 
 tar -cvf base_cas.tar "./${CURR_DIR}"

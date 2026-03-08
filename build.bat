@@ -1,6 +1,6 @@
 @ECHO OFF
 REM Get the current folder name
-SET CURR_DIR=nginx_ui
+SET CURR_DIR=nginx-ui
 SET CGO_ENABLED=1
 SET "MSYS2_MINGW64_BIN=C:\tools\msys64\mingw64\bin"
 

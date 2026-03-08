@@ -6,8 +6,9 @@ After=network.target
 Type=simple
 User=thebase
 Group=thebase
+Environment="GIN_MODE=release"
 WorkingDirectory=/opt/nginx_ui
-ExecStart=/opt/nginx_ui/.\nginx_ui\nginx_ui.exe
+ExecStart=/opt/nginx_ui/nginx_ui_linux -config /opt/nginx_ui/app.ini
 StandardOutput=journal+console
 StandardError=journal+console
 Restart=on-failure

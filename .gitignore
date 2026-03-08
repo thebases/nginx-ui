@@ -28,3 +28,6 @@ log-index/
 GeoLite2-City.mmdb
 *.log
 temp
+*.tar
+*.xz
+nginx-ui
