@@ -31,3 +31,6 @@ temp
 *.tar
 *.xz
 nginx-ui
+internal/license/licenses.xz
+internal/cert/config/config.tar.xz
+base_cas.tar
