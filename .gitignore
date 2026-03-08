@@ -9,7 +9,6 @@ dist
 dist.tar.xz
 *.exe
 *.po~
-nginx-ui
 resources/development/nginx
 app/.env
 app/.status_hash
