@@ -5,8 +5,9 @@ CURR_DIR="nginx-ui"
 export CGO_ENABLED=1
 export GIN_MODE=release
 
+mkdir -p ./dist
 
-npx update-browserslist-db@latest  && pnpm install && pnpm build 
+npx update-browserslist-db@latest  && pnpm install && pnpm build --minify
 
 MSYS2_MINGW64_BIN="/c/tools/msys64/mingw64/bin"
 
@@ -26,12 +27,12 @@ case "$target" in
       export CC="${MSYS2_MINGW64_BIN}/gcc.exe"
       export CXX="${MSYS2_MINGW64_BIN}/g++.exe"
     fi
-    OUTPUT="./${CURR_DIR}/${CURR_DIR}.exe"
+    OUTPUT="./dist/${CURR_DIR}/${CURR_DIR}.exe"
     ;;
   linux)
     export GOOS="linux"
     export GOARCH="amd64"
-    OUTPUT="./${CURR_DIR}/${CURR_DIR}_linux"
+    OUTPUT="./dist/${CURR_DIR}/${CURR_DIR}_linux"
     ;;
   *)
     echo "Invalid argument. Use 'win' or 'linux'."
@@ -39,10 +40,10 @@ case "$target" in
     ;;
 esac
 go generate
-go build -tags=jsoniter -ldflags="-w -s -n -v" -o "${OUTPUT}"
+go build -tags=jsoniter -ldflags="-w -s -n -v" -trimpath -o "${OUTPUT}"
 echo "Build succeeded: ${OUTPUT}"
 
-SERVICE_FILE="./${CURR_DIR}/${CURR_DIR}.service"
+SERVICE_FILE="./dist/${CURR_DIR}/${CURR_DIR}.service"
 cat > "${SERVICE_FILE}" <<EOF
 [Unit]
 Description=The Base Cas Auth Server
@@ -66,8 +67,8 @@ EOF
 
 echo "Service file created: ${SERVICE_FILE}"
 
-cp ./resources/base/app.example.ini "./${CURR_DIR}/app.ini"
-cp ./resources/base/nginx_ui_sample.conf "./${CURR_DIR}/nginx_ui.conf"
-cp ./resources/base/openapi.json "./${CURR_DIR}/openapi.json"
+cp ./resources/base/app.example.ini "./dist/${CURR_DIR}/app.ini"
+cp ./resources/base/nginx_ui_sample.conf "./dist/${CURR_DIR}/nginx_ui.conf"
+cp ./resources/base/openapi.json "./dist/${CURR_DIR}/openapi.json"
 
-tar -cvf base_cas.tar "./${CURR_DIR}"
+tar -cvf "./dist/base_nginx_ui.tar" "./dist/${CURR_DIR}"

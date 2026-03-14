@@ -4,7 +4,7 @@ const thisYear = computed(() => new Date().getFullYear())
 
 <template>
   <div class="footer center">
-    Copyright © 2021 - {{ thisYear }} Nginx UI
+    Copyright © {{ thisYear }} The Base (a fork of NGINX UI)
   </div>
 </template>
 

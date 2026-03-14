@@ -21,4 +21,4 @@ if [[ -x "${MSYS2_MINGW64_BIN}/gcc.exe" || -x "${MSYS2_MINGW64_BIN}/gcc" ]]; the
 fi
 
 export GIN_MODE=debug
-go run main.go
+go run main.go -config ./app.ini %1

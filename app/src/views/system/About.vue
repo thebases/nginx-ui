@@ -23,10 +23,10 @@ const thisYear = new Date().getFullYear()
         </div>
       </div>
     </div>
-    <h2>Nginx UI</h2>
-    <p>Yet another WebUI for Nginx</p>
+    <h2>Base Nginx UI</h2>
+    <p>WebUI for Nginx</p>
     <p>Version: {{ ver.version }} ({{ ver.total_build || $gettext('Development Mode') }})</p>
-    <p>
+    <!-- <p>
       <a href="https://nginxui.com" target="_blank" rel="noopener noreferrer">
         {{ $gettext('Official Document') }}
       </a>
@@ -82,9 +82,9 @@ const thisYear = new Date().getFullYear()
       >
         {{ $gettext('View Third-party Components') }}
       </AButton>
-    </div>
+    </div> -->
     <p>GNU Affero General Public License v3.0</p>
-    <p>Copyright © 2021 - {{ thisYear }} Nginx UI Team</p>
+    <p>Copyright © {{ thisYear }} The Base</p>
   </ACard>
 </template>
 

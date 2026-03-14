@@ -284,7 +284,7 @@ async function handlePasskeyLogin() {
       <div class="login-container">
         <div class="login-form">
           <div class="project-title">
-            <h1>Nginx UI</h1>
+            <h1>Base Nginx UI</h1>
           </div>
 
           <div v-if="loading" class="loading-container">
@@ -382,7 +382,7 @@ async function handlePasskeyLogin() {
           </AForm>
           <div class="footer">
             <p class="mb-4">
-              Copyright © 2021 - {{ thisYear }} Nginx UI
+              Copyright © {{ thisYear }} Base Nginx UI
             </p>
             <ICP class="mb-4" />
             Language

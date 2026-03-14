@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import logo from '@/assets/img/logo.png'
+import darkLogo from '@/assets/img/logo_dark.svg?url'
+import lightLogo from '@/assets/img/logo_light.svg?url'
+import { useSettingsStore } from '@/pinia'
+
+const settings = useSettingsStore()
+const logo = computed(() => settings.theme === 'dark' ? darkLogo : lightLogo)
 </script>
 
 <template>
   <div class="logo">
     <img
       :src="logo"
-      alt="logo"
+      alt="UI logo"
     >
-    <p class="text">
+    <!-- <p class="text">
       Nginx UI
-    </p>
+    </p> -->
   </div>
 </template>
 

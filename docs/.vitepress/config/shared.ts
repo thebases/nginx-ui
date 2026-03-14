@@ -33,7 +33,7 @@ export const sharedConfig = defineConfig({
 
         footer: {
             message: `Released under the AGPL-3.0 License. (${commitRef})`,
-            copyright: 'Copyright © 2021-' + thisYear() + ' Nginx UI Team'
+            copyright: 'Copyright © ' + thisYear() + ' The Base (a fork of NGINX UI)'
         },
 
         socialLinks: [

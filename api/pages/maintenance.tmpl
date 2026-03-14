@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <title>{{.Title}} | Nginx UI</title>
+    <title>{{.Title}} | Base Nginx UI</title>
     <style>
         * {
             box-sizing: border-box;
@@ -136,17 +136,10 @@
             <p>{{.Message}}</p>
             <p>{{.Description}}</p>
             <div class="footer">
-                <p>Powered by <a href="https://nginxui.com" target="_blank">Nginx UI</a></p>
+                <p>Powered by <a href="https://thebase.vn" target="_blank">Base Nginx UI</a></p>
             </div>
         </div>
-        <div class="beian-info">
-            {{if .ICPNumber}}
-            <p><a href="https://beian.miit.gov.cn/" target="_blank">{{.ICPNumber}}</a></p>
-            {{end}}
-            {{if .PublicSecurityNumber}}
-            <p><img src="//www.beian.gov.cn/img/new/gongan.png" alt="公安备案"><a href="http://www.beian.gov.cn/portal/index" target="_blank">{{.PublicSecurityNumber}}</a></p>
-            {{end}}
-        </div>
+        
     </div>
 </body>
 </html>
