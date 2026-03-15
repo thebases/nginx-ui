@@ -6,9 +6,9 @@ export CGO_ENABLED=1
 export GIN_MODE=release
 
 mkdir -p ./dist
-
-npx update-browserslist-db@latest  && pnpm install && pnpm build --minify
-
+cd app
+npx update-browserslist-db@latest  && pnpm install && pnpm build 
+cd ..
 MSYS2_MINGW64_BIN="/c/tools/msys64/mingw64/bin"
 
 if [[ $# -lt 1 ]]; then
@@ -67,7 +67,7 @@ EOF
 
 echo "Service file created: ${SERVICE_FILE}"
 
-cp ./resources/base/app.example.ini "./dist/${CURR_DIR}/app.ini"
+#cp ./resources/base/app.example.ini "./dist/${CURR_DIR}/app.ini"
 cp ./resources/base/nginx_ui_sample.conf "./dist/${CURR_DIR}/nginx_ui.conf"
 cp ./resources/base/openapi.json "./dist/${CURR_DIR}/openapi.json"
 

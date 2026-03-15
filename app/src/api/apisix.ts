@@ -3,7 +3,7 @@ import { http } from '@uozi-admin/request'
 const pageSizeMax = 500
 const adminProxyPrefix = '/apisix/admin'
 const headerOverrideBaseURL = 'X-APISIX-BASE-URL'
-const headerOverrideAPIKey = 'X-APISIX-API-KEY'
+const headerOverrideAPIKey = 'X-API-KEY'
 
 const apiRoutes = '/apisix/admin/routes'
 const apiStreamRoutes = '/apisix/admin/stream_routes'

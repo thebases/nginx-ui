@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	uiSettings "github.com/0xJacky/Nginx-UI/settings"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"github.com/uozi-tech/cosy"
@@ -76,18 +75,12 @@ func RequestAdminAPI(c *gin.Context) {
 
 	baseURL := strings.TrimSpace(req.BaseURL)
 	if baseURL == "" {
-		baseURL = strings.TrimSpace(uiSettings.APISIXSettings.BaseURL)
+		baseURL = configuredBaseURL()
 	}
 	if baseURL == "" {
 		baseURL = firstNonEmptyEnv(envNginxUIAPIAddr, envAPISIXAdminAPIAddr)
 	}
-	apiKey := strings.TrimSpace(req.APIKey)
-	if apiKey == "" {
-		apiKey = strings.TrimSpace(uiSettings.APISIXSettings.APIKey)
-	}
-	if apiKey == "" {
-		apiKey = firstNonEmptyEnv(envNginxUIAdminKey, envAPISIXAdminKey)
-	}
+	apiKey := configuredAPIKey()
 
 	method := strings.ToUpper(strings.TrimSpace(req.Method))
 	if _, ok := allowedMethods[method]; !ok {

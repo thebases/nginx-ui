@@ -16,8 +16,11 @@ import (
 )
 
 const (
-	HeaderAPIKey   = "X-api-key"
-	defaultTimeout = 15 * time.Second
+	HeaderAPIKey         = "x-api-key"
+	headerRealIP         = "X-Real-IP"
+	headerForwardedFor   = "X-Forwarded-For"
+	headerForwardedProto = "X-Forwarded-Proto"
+	defaultTimeout       = 15 * time.Second
 )
 
 // Request defines the APISIX Admin API request options.
@@ -42,18 +45,21 @@ func NewClient(baseURL, apiKey string) (*Client, error) {
 		return nil, err
 	}
 
+	trimmedAPIKey := strings.TrimSpace(apiKey)
+	if trimmedAPIKey == "" {
+		return nil, errors.New("APISIX Admin API key in config is required")
+	}
+
 	httpClient := resty.New()
 	httpClient.SetBaseURL(normalizedBaseURL)
 	httpClient.SetTimeout(defaultTimeout)
 	httpClient.SetHeader("Accept", "application/json")
 	httpClient.SetHeader("Content-Type", "application/json")
-	if strings.TrimSpace(apiKey) != "" {
-		httpClient.SetHeader(HeaderAPIKey, strings.TrimSpace(apiKey))
-	}
+	httpClient.SetHeader(HeaderAPIKey, trimmedAPIKey)
 
 	return &Client{
 		baseURL: normalizedBaseURL,
-		apiKey:  strings.TrimSpace(apiKey),
+		apiKey:  trimmedAPIKey,
 		client:  httpClient,
 	}, nil
 }
@@ -94,6 +100,9 @@ func (c *Client) Do(ctx context.Context, method, path string, req Request) (*res
 		return nil, err
 	}
 	method = strings.ToUpper(strings.TrimSpace(method))
+	if strings.TrimSpace(c.apiKey) == "" {
+		return nil, errors.New("APISIX Admin API key in config is required")
+	}
 
 	request := c.client.R()
 	if ctx != nil {
@@ -106,6 +115,10 @@ func (c *Client) Do(ctx context.Context, method, path string, req Request) (*res
 	if len(req.Headers) > 0 {
 		request.SetHeaders(req.Headers)
 	}
+	request.Header.Del(headerRealIP)
+	request.Header.Del(headerForwardedFor)
+	request.Header.Del(headerForwardedProto)
+	request.SetHeader(HeaderAPIKey, strings.TrimSpace(c.apiKey))
 	if req.Body != nil {
 		request.SetBody(req.Body)
 	}
@@ -114,12 +127,23 @@ func (c *Client) Do(ctx context.Context, method, path string, req Request) (*res
 	}
 
 	targetURL := buildTargetURLForLog(c.baseURL, normalizedPath, req.Query)
-	logger.Infof("APISIX proxy outbound request method=%s url=%s body=%s", method, targetURL, marshalBodyForLog(req.Body))
+	logger.Infof(
+		"APISIX proxy outbound request method=%s url=%s headers=%s body=%s",
+		method,
+		targetURL,
+		marshalHeadersForLog(request.Header),
+		marshalBodyForLog(req.Body),
+	)
 
 	resp, err := request.Execute(method, normalizedPath)
 	if err != nil {
 		return nil, fmt.Errorf("call APISIX Admin API %s %s failed: %w", method, normalizedPath, err)
 	}
+	logger.Infof("APISIX proxy outbound response status=%d headers=%s body=%s",
+		resp.StatusCode(),
+		marshalHeadersForLog(resp.Header()),
+		resp.Body(),
+	)
 
 	return resp, nil
 }
@@ -243,6 +267,30 @@ func configuredReplacePath() string {
 	return "/admin"
 }
 
+func configuredBaseURL() string {
+	return firstConfiguredValue(
+		uiSettings.APISIXSettings.BaseURL,
+		iniSectionValue("apisix", "BaseURL", "BaseUrl", "base_url"),
+	)
+}
+
+func configuredAPIKey() string {
+	return firstConfiguredValue(
+		uiSettings.APISIXSettings.APIKey,
+		iniSectionValue("apisix", "APIKey", "ApiKey", "api_key"),
+	)
+}
+
+func firstConfiguredValue(values ...string) string {
+	for _, value := range values {
+		trimmed := strings.TrimSpace(value)
+		if trimmed != "" {
+			return trimmed
+		}
+	}
+	return ""
+}
+
 func normalizeReplacePath(path string) string {
 	trimmed := strings.TrimSpace(path)
 	if trimmed == "" {
@@ -315,5 +363,27 @@ func marshalBodyForLog(body any) string {
 	if len(payload) > maxLogBytes {
 		return string(payload[:maxLogBytes]) + "...(truncated)"
 	}
+	return string(payload)
+}
+
+func marshalHeadersForLog(headers map[string][]string) string {
+	if len(headers) == 0 {
+		return "{}"
+	}
+
+	safeHeaders := make(map[string][]string, len(headers))
+	for key, values := range headers {
+		if strings.EqualFold(key, HeaderAPIKey) {
+			safeHeaders[key] = []string{"***"}
+			continue
+		}
+		safeHeaders[key] = append([]string(nil), values...)
+	}
+
+	payload, err := json.Marshal(safeHeaders)
+	if err != nil {
+		return fmt.Sprintf("%+v", safeHeaders)
+	}
+
 	return string(payload)
 }

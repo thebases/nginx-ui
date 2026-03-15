@@ -13,7 +13,6 @@ import (
 	"strings"
 	"sync"
 
-	uiSettings "github.com/0xJacky/Nginx-UI/settings"
 	"github.com/gin-gonic/gin"
 	"github.com/uozi-tech/cosy"
 	cSettings "github.com/uozi-tech/cosy/settings"
@@ -21,7 +20,7 @@ import (
 
 const (
 	headerOverrideBaseURL = "X-APISIX-BASE-URL"
-	headerOverrideAPIKey  = "X-APISIX-API-KEY"
+	headerOverrideAPIKey  = "X-API-KEY"
 )
 
 var (
@@ -59,8 +58,7 @@ func ProxyAdminAPI(c *gin.Context) {
 
 	baseURL, err := resolveBaseURL(
 		c.GetHeader(headerOverrideBaseURL),
-		uiSettings.APISIXSettings.BaseURL,
-		firstNonEmptyINI("apisix", "BaseURL", "BaseUrl", "base_url"),
+		configuredBaseURL(),
 		firstNonEmptyEnv(envNginxUIAPIAddr, envAPISIXAdminAPIAddr),
 	)
 	if err != nil {
@@ -68,16 +66,7 @@ func ProxyAdminAPI(c *gin.Context) {
 		return
 	}
 
-	apiKey := strings.TrimSpace(c.GetHeader(headerOverrideAPIKey))
-	if apiKey == "" {
-		apiKey = strings.TrimSpace(uiSettings.APISIXSettings.APIKey)
-	}
-	if apiKey == "" {
-		apiKey = firstNonEmptyINI("apisix", "APIKey", "ApiKey", "api_key")
-	}
-	if apiKey == "" {
-		apiKey = firstNonEmptyEnv(envNginxUIAdminKey, envAPISIXAdminKey)
-	}
+	apiKey := configuredAPIKey()
 
 	client, err := NewClient(baseURL, apiKey)
 	if err != nil {
@@ -143,7 +132,7 @@ func collectForwardHeaders(headers http.Header) map[string]string {
 	}
 
 	ignored := map[string]struct{}{
-		strings.ToLower(HeaderAPIKey):         {},
+		strings.ToLower(HeaderAPIKey):          {},
 		strings.ToLower(headerOverrideBaseURL): {},
 		strings.ToLower(headerOverrideAPIKey):  {},
 	}

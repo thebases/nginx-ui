@@ -2,7 +2,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useNProgress } from '@/lib/nprogress/nprogress'
 import { useUserStore } from '@/pinia'
-import { apisixRoutes } from './modules/apisix/apisix'
+import { apisixRoutes } from './modules/apisix'
 import { authRoutes } from './modules/auth'
 
 import { backupRoutes } from './modules/backup'

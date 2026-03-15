@@ -79,6 +79,13 @@ This project is a web-based NGINX management interface built with Go backend and
 - **Backend**: `go generate ./...`, `go build ./...`, run `go test ./... -race -cover`; for release artifacts reuse the README command with `-tags=jsoniter -ldflags "$LD_FLAGS ..."`.
 - **Demo stack**: `docker-compose -f docker-compose-demo.yml up` to bootstrap the sample environment
 
+## APISIX Integration Notes
+- APISIX outbound calls are centralized in `api/apisix/apisix.go`; enforce request behavior there instead of duplicating header logic in individual handlers.
+- The APISIX API key must be sent on every outbound APISIX request as the `x-api-key` header.
+- Resolve APISIX config consistently from the `[apisix]` section in the `.ini` file, especially `BaseURL`, `ApiKey`, and `ReplacePath`.
+- Keep outbound APISIX request logging enabled before the request is executed, but mask the API key value in logs.
+- Do not forward client network identity headers to APISIX. Strip `X-Real-IP`, `X-Forwarded-For`, and `X-Forwarded-Proto` from outbound APISIX requests.
+
 ## Language Requirements
 - **All code comments, documentation, and communication must be in English**
 - Maintain consistency and accessibility across the codebase
